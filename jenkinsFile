@@ -123,7 +123,7 @@
 
 //Declarative with shared library
 @Library('pipeline-academy-library')
-import org.dylan.testFuncs;
+import org.dylan.testFuncs.*
 
 pipeline {
     agent any
