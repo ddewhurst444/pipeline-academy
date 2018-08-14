@@ -1,4 +1,5 @@
-node('shared') {
+//Scripted
+/*node('shared') {
     tool name: 'Default', type: 'git'
     properties([parameters([string(defaultValue: 'default', description: '', name: 'testString', trim: false)])])
     stage('Build') {
@@ -36,44 +37,75 @@ node('shared') {
             }
         }
     }
+}*/
+
+
+
+
+
+
+//Declarative
+pipeline {
+    agent {
+        label 'shared' 
+    }
+    parameters {
+      string defaultValue: 'default', description: '', name: 'testString', trim: false
+    } 
+    tools {
+      git 'Default'
+    }
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building....'
+                checkout scm
+
+                sh "echo 'Param is ${params.testString}'"
+                checkpoint 'build-checkpoint'
+            }
+        }
+        stage('Test') {
+            environment {
+                TESTENV = 'envVar'
+                CREDTEST = credentials('test-secret')
+            }
+            steps {
+                timeout(time: 30, unit: 'SECONDS') {
+                    echo 'Building....'
+                    sh "echo 'Environment variable is ${env.TESTENV}'"
+                        sh '''echo 'Cred string is ${env.CREDTEST}' '''
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                input 'Deploy?'
+                echo 'Deploying....'
+                build 'downstream-test'
+            }
+        }
+        stage('Parallel') {
+            parallel {
+                stage {
+                    agent {
+                        label 'master'
+                    }
+                    steps {
+                        sh '''echo 'I am the any node!' '''
+                    }
+                }
+                 stage {
+                    agent {
+                        label 'shared'
+                    }
+                    steps {
+                        sh '''echo 'I am the shared node!' '''
+                    }
+                }
+            }
+        }
+    }
 }
 
 
-
-
-
-
-
-/*pipeline {
-    agent {
-        label 
-    } 
-    stages {
-        stage('Stage 1') {
-            steps {
-                echo 'Hello world!' 
-                checkout scm
-            }
-        }
-    }
-}*/
-
-
-
-
-
-
-
-/*pipeline {
-    agent {
-        label 
-    } 
-    stages {
-        stage('Stage 1') {
-            steps {
-                echo 'Hello world!' 
-                checkout scm
-            }
-        }
-    }
-}*/
