@@ -1,11 +1,11 @@
 node('shared') {
     tool name: 'Default', type: 'git'
+    properties([parameters([string(defaultValue: 'default', description: '', name: 'testString', trim: false)])])
     stage('Build') {
         echo 'Building....'
         checkout scm
-        properties([parameters([string(defaultValue: 'default', description: '', name: 'test-string', trim: false)])])
 
-        sh "echo 'Param is ${params.test-string}'"
+        sh "echo 'Param is ${params.testString}'"
         checkpoint 'build-checkpoint'
     }
     stage('Test') {
@@ -26,17 +26,37 @@ node('shared') {
     }
     stage('Parallel') {
         parallel anyNode: {
-            node {
+            node('master') {
                 sh '''echo 'I am the any node!' '''
             }
         },
         sharedNode: {
             node('shared') {
-                sh '''echo 'I am the any node!' '''
+                sh '''echo 'I am the shared node!' '''
             }
         }
     }
 }
+
+
+
+
+
+
+
+/*pipeline {
+    agent {
+        label 
+    } 
+    stages {
+        stage('Stage 1') {
+            steps {
+                echo 'Hello world!' 
+                checkout scm
+            }
+        }
+    }
+}*/
 
 
 
