@@ -1,0 +1,59 @@
+node('shared') {
+    tool name: 'Default', type: 'git'
+    stage('Build') {
+        echo 'Building....'
+        checkout scm
+        properties([parameters([string(defaultValue: 'default', description: '', name: 'test-string', trim: false)])])
+
+        sh "echo 'Param is ${params.test-string}'"
+        checkpoint 'build-checkpoint'
+    }
+    stage('Test') {
+        timeout(time: 30, unit: 'SECONDS') {
+                withEnv(["TESTENV=envVar"]) {
+                echo 'Building....'
+                sh "echo 'Environment variable is ${env.TESTENV}'"
+            }
+            withCredentials([string(credentialsId: 'test-secret', variable: 'CREDTEST')]) {
+                sh '''echo 'Cred string is ${CREDTEST}' '''
+            }
+        }
+    }
+    stage('Deploy') {
+        input 'Deploy?'
+        echo 'Deploying....'
+        build 'downstream-test'
+    }
+    stage('Parallel') {
+        parallel anyNode: {
+            node {
+                sh '''echo 'I am the any node!' '''
+            }
+        },
+        sharedNode: {
+            node('shared') {
+                sh '''echo 'I am the any node!' '''
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+/*pipeline {
+    agent {
+        label 
+    } 
+    stages {
+        stage('Stage 1') {
+            steps {
+                echo 'Hello world!' 
+                checkout scm
+            }
+        }
+    }
+}*/
