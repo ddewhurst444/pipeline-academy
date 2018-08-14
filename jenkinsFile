@@ -15,8 +15,8 @@
                 echo 'Building....'
                 sh "echo 'Environment variable is ${env.TESTENV}'"
             }
-            withCredentials([string(credentialsId: 'test-secret', variable: 'CREDTEST')]) {
-                sh '''echo 'Cred string is ${CREDTEST}' '''
+            withCredentials([string(credentialsId: 'test-secret', variable: 'credTest')]) {
+                sh '''echo 'Cred string is ${credTest}' '''
             }
         }
     }
@@ -87,7 +87,7 @@ pipeline {
         }
         stage('Parallel') {
             parallel {
-                stage {
+                stage('Parallel A') {
                     agent {
                         label 'master'
                     }
@@ -95,7 +95,7 @@ pipeline {
                         sh '''echo 'I am the any node!' '''
                     }
                 }
-                 stage {
+                 stage('Parallel B') {
                     agent {
                         label 'shared'
                     }
