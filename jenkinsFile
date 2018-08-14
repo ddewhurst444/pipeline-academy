@@ -45,7 +45,7 @@
 
 
 //Declarative
-pipeline {
+/*pipeline {
     agent none
     parameters {
       string defaultValue: 'default', description: '', name: 'testString', trim: false
@@ -115,6 +115,25 @@ pipeline {
                         sh '''echo 'I am the shared node!' '''
                     }
                 }
+            }
+        }
+    }
+}*/
+
+
+//Declarative with shared library
+@Library('pipeline-academy-library')
+import org.dylan.testFuncs;
+
+pipeline {
+    agent any
+    environment {
+        TEST = 'default'
+    }
+    stages {
+        stage('Shared Library Test') {
+            steps {
+                setEnv this, 'new String'
             }
         }
     }
