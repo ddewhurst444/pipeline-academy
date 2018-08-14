@@ -46,9 +46,7 @@
 
 //Declarative
 pipeline {
-    agent {
-        label 'shared' 
-    }
+    agent none
     parameters {
       string defaultValue: 'default', description: '', name: 'testString', trim: false
     } 
@@ -57,28 +55,42 @@ pipeline {
     }
     stages {
         stage('Build') {
+            agent {
+                label 'shared' 
+            }
             steps {
                 echo 'Building....'
                 checkout scm
 
                 sh "echo 'Param is ${params.testString}'"
-                checkpoint 'build-checkpoint'
             }
         }
+        stage("Checkpoint") {
+          agent none
+          steps {
+            checkpoint 'Completed Build'
+          }
+        }
         stage('Test') {
+            agent {
+                label 'shared' 
+            }
             environment {
                 TESTENV = 'envVar'
                 CREDTEST = credentials('test-secret')
             }
             steps {
                 timeout(time: 30, unit: 'SECONDS') {
-                    echo 'Building....'
+                    echo 'Testing....'
                     sh "echo 'Environment variable is ${env.TESTENV}'"
                         sh '''echo 'Cred string is ${env.CREDTEST}' '''
                 }
             }
         }
         stage('Deploy') {
+            agent {
+                label 'shared' 
+            }
             steps {
                 input 'Deploy?'
                 echo 'Deploying....'
